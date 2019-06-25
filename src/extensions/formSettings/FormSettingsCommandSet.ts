@@ -37,6 +37,7 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
     this.loadFormSettings(formSettings);
 
     jquery("body").on("click", `button[data-automationid='FieldRenderer-title']`,  (e) => {
+      jquery(e.target).parents().closest("div[data-automationid='DetailsRowCell']").trigger("click");
       e.stopPropagation();
     });
 
@@ -47,8 +48,6 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
       const displayForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.Form==="Display");
       
       if(editForms.length>0){
-        
-        console.log(editForms[0].Parameters);
         this.overrideOnClick("Edit",editForms[0].OpenIn,editForms[0].RedirectURL,editForms[0].Parameters);        
       }
 
@@ -117,6 +116,8 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
   }
 
   private replaceTokens(tokens:string){
+    if(!tokens)
+      return "";
     return tokens.replace("{ListId}",String(this.context.pageContext.list.id))
             .replace("{WebUrl}",this.context.pageContext.web.absoluteUrl)
             .replace("{SiteUrl}",this.context.pageContext.site.absoluteUrl)

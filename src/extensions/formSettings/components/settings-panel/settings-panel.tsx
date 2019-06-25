@@ -65,34 +65,24 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
                     />
                     {
                         this.state.form.Enabled &&
-                        <TextField label="Redirect URL:" value={this.state.form.RedirectURL} onChanged={this._onUrlChanged} />
-                    }
-                    {
-                        this.state.form.Enabled &&
-                        <ChoiceGroup
-                            className="defaultChoiceGroup"
-                            selectedKey={this.state.form.OpenIn}
-                            options={[
-                                {
-                                    key: 'Current Window',
-                                    text: 'Current Window'
-                                },
-                                {
-                                    key: 'New Tab',
-                                    text: 'New Tab'
-                                },
-                                {
-                                    key: 'Dialog',
-                                    text: 'Dialog'
-                                }
-                            ]}
-                            onChanged={this._onChoiceChanged}
-                            label="Open in"
-                        />
-                    }
-                    {
-                        this.state.form.Enabled &&
                         <div>
+                            <TextField label="Redirect URL" value={this.state.form.RedirectURL} onChanged={this._onUrlChanged} />
+                            <ChoiceGroup
+                                className="defaultChoiceGroup"
+                                selectedKey={this.state.form.OpenIn}
+                                options={[
+                                    {
+                                        key: 'Current Window',
+                                        text: 'Current Window'
+                                    },
+                                    {
+                                        key: 'New Tab',
+                                        text: 'New Tab'
+                                    }
+                                ]}
+                                onChanged={this._onChoiceChanged}
+                                label="Open in"
+                            />
                             <TextField label="Parameters" value={this.state.form.Parameters} onChanged={this._onParametersChanged} multiline autoAdjustHeight />
                             <p>
                                 {
