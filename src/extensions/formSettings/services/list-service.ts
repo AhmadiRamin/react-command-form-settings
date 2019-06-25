@@ -2,7 +2,7 @@ import {
     sp
 } from "@pnp/sp";
 import { Log } from '@microsoft/sp-core-library';
-import IFormItem from "../components/models/form-item";
+import IFormItem from "../models/form-item";
 const LOG_SOURCE: string = 'PrintCommandSet';
 export default class ListService {
 
@@ -32,13 +32,13 @@ export default class ListService {
         */
     public async getFormSettings(listId: string):Promise<IFormItem[]> {
         return sp.web.lists.getByTitle("FormSettings")
-        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled")
+        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled","Parameters")
         .filter(`Title eq '${listId}'`).get();
     }
 
     public async getEnabledFormSettings(listId: string):Promise<IFormItem[]> {
         return sp.web.lists.getByTitle("FormSettings")
-        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled")
+        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled","Parameters")
         .filter(`Title eq '${listId}' and Enabled eq 1`).get();
     }
     /**

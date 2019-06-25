@@ -6,4 +6,5 @@ export default interface IFormItem{
     RedirectURL:string;
     OpenIn:string;
     Enabled:boolean;
+    Parameters:string;
 }
