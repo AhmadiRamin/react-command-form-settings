@@ -23,7 +23,8 @@ const LOG_SOURCE: string = 'FormsSettingsCommandSet';
 
 export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFormsSettingsCommandSetProperties> {
   private listService = new ListService();
-  private selectedItem:any;
+  private ovverideClick = false;
+  private selectedRow = null;
   @override
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized FormsSettingsCommandSet');
@@ -32,28 +33,43 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
 
   @override
   public async onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): Promise<void> {
-    const formSettings = await this.listService.getFormSettings(String(this.context.pageContext.list.id));
+    const formSettings = await this.listService.getEnabledFormSettings(String(this.context.pageContext.list.id));
     
     this.loadFormSettings(formSettings);
 
     jquery("body").on("click", `button[data-automationid='FieldRenderer-title']`,  (e) => {
-      jquery(e.target).parents().closest("div[data-automationid='DetailsRowCell']").trigger("click");
-      e.stopPropagation();
+      this.selectedRow = jquery(e.target).parents().closest("div[data-automationid='DetailsRowCell']");
+      this.selectedRow.trigger("click");
+      
+      //e.stopPropagation();
     });
 
     if (event.selectedRows.length > 0) {
-      this.selectedItem = event.selectedRows[0];
+      
       const contentType = event.selectedRows[0].getValueByName("ContentType");
       const editForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.Form==="Edit");
       const displayForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.Form==="Display");
       
       if(editForms.length>0){
+        
+        this.ovverideClick=true;
         this.overrideOnClick("Edit",editForms[0].OpenIn,editForms[0].RedirectURL,editForms[0].Parameters);        
+      }
+      else{
+        this.ovverideClick=false;
       }
 
       if(displayForms.length>0){
-        this.ovverideDisplayClick(displayForms[0].OpenIn,displayForms[0].RedirectURL,displayForms[0].Parameters);
+        this.ovverideClick=true;
+        this.overrideOnClick("Open",displayForms[0].OpenIn,displayForms[0].RedirectURL,displayForms[0].Parameters);
+        if(this.selectedRow){
+          window.open(`http://google.com`, "_blank");
+          this.selectedRow=null;
+        }
+        //this.selectedRow.find("button[data-automationid='FieldRenderer-title']").click();
       }
+      else
+        this.ovverideClick=false;
     }
   }
 
@@ -88,30 +104,18 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
 
   private overrideOnClick(tagName:string,openIn:string,redirectURL:string,tokens:string){
     jquery("body").on("click", `button[name='${tagName}']`,  (e)=> {
-      switch (openIn) {
-        case "Current Window":
-          window.location.href = `${redirectURL}?${this.replaceTokens(tokens)}`;
-          break;
-        case "New Tab":
-          window.open(`${redirectURL}?${this.replaceTokens(tokens)}`, "_blank");
-          break;
+      if(this.ovverideClick){
+        switch (openIn) {
+          case "Current Window":
+            window.location.href = `${redirectURL}?${this.replaceTokens(tokens)}`;
+            break;
+          case "New Tab":
+            window.open(`${redirectURL}?${this.replaceTokens(tokens)}`, "_blank");
+            break;
+        }
+        e.stopPropagation();
       }
-      e.stopPropagation();
-    });
-  }
-
-  private ovverideDisplayClick(openIn:string,redirectURL:string,tokens:string){
-    jquery("body").on("click", `button[data-automationid='FieldRenderer-title'],[name='Open']`,  (e) => {
       
-      switch (openIn) {
-        case "Current Window":
-          window.location.href = `${redirectURL}?${this.replaceTokens(tokens)}`;
-          break;
-        case "New Tab":
-          window.open(`${redirectURL}?${this.replaceTokens(tokens)}`, "_blank");
-          break;
-      }
-      e.stopPropagation();
     });
   }
 
