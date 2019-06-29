@@ -5,7 +5,7 @@
     "id": "0122173d-d5cd-4332-8153-5a29932b5c05",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
-    "skipFeatureDeployment": true,
+    "skipFeatureDeployment": false,
     "isDomainIsolated": false,
     "features": [
       {
@@ -17,6 +17,9 @@
           "elementManifests": [
             "elements.xml",
             "clientsideinstance.xml"
+          ],
+          "elementFiles": [
+            "listSchema.xml"
           ]
         }
       }

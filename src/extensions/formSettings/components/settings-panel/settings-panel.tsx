@@ -52,7 +52,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
                     <Dropdown onChanged={this._onDropDownChanged} placeholder="Select content type..." options={this.state.contentTypes} />
                     {
                         this.state.form.ContentTypeName &&
-                        <Dropdown selectedKey={this.state.form.Form} onChanged={this._onFormDropDownChanged} label="Form:" placeholder="Select form..." options={this.formOptions} />
+                        <Dropdown selectedKey={this.state.form.FormType} onChanged={this._onFormDropDownChanged} label="Form:" placeholder="Select form..." options={this.formOptions} />
                     }
 
                     <Toggle
@@ -61,7 +61,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
                         offText="No"
                         checked={this.state.form.Enabled}
                         onChanged={this._enabledToggleChange}
-                        hidden={this.state.form.Form === undefined}
+                        hidden={this.state.form.FormType === null}
                     />
                     {
                         this.state.form.Enabled &&
@@ -110,7 +110,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
                 }
 
                 {
-                    this.state.form.Form !== undefined &&
+                    this.state.form.FormType !== null &&
                     <PrimaryButton disabled={this.state.formUpdated} onClick={this._saveTemplate} style={{ marginRight: '8px' }}>Save</PrimaryButton>
                 }
 
@@ -123,7 +123,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
         this.setState({
             form: {
                 ContentTypeName: option.text,
-                Form: undefined,
+                FormType: null,
                 Enabled: false
             },
             formUpdated: false
@@ -134,7 +134,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
     private _onFormDropDownChanged = (option: IDropdownOption, index?: number) => {
 
 
-        const forms: IFormItem[] = this.state.formSettings.filter(ct => ct.Form === option.text && ct.ContentTypeName === this.state.form.ContentTypeName);
+        const forms: IFormItem[] = this.state.formSettings.filter(ct => ct.FormType === option.text && ct.ContentTypeName === this.state.form.ContentTypeName);
 
         if (forms.length > 0) {
 
@@ -150,7 +150,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
                     form: {
                         ContentTypeName: prevState.form.ContentTypeName,
                         Enabled: false,
-                        Form: option.text
+                        FormType: option.text
                     },
                     formUpdated: false
                 }
@@ -213,13 +213,13 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
             Title: this.props.listId,
             Enabled: form.Enabled,
             ContentTypeName: form.ContentTypeName,
-            Form: form.Form,
+            FormType: form.FormType,
             OpenIn: form.OpenIn,
             RedirectURL: form.RedirectURL,
             Parameters: form.Parameters
         };
 
-        const forms: IFormItem[] = this.state.formSettings.filter(ct => ct.Form === form.Form && ct.ContentTypeName === form.ContentTypeName);
+        const forms: IFormItem[] = this.state.formSettings.filter(ct => ct.FormType === form.FormType && ct.ContentTypeName === form.ContentTypeName);
 
         if (forms.length > 0) {
             this.listService.UpdateForm(form);

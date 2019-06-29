@@ -30,26 +30,31 @@ export default class ListService {
     /**
         * Return all form settings related to the current list
         */
-    public async getFormSettings(listId: string):Promise<IFormItem[]> {
-        return sp.web.lists.getByTitle("FormSettings")
-        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled","Parameters")
-        .filter(`Title eq '${listId}'`).get();
+    public async getFormSettings(listId: string): Promise<IFormItem[]> {
+        return sp.web.lists.getByTitle("Form Settings")
+            .items.select("Id", "Title", "ContentTypeName", "FormType", "RedirectURL", "OpenIn", "Enabled", "Parameters")
+            .filter(`Title eq '${listId}'`).get();
     }
-
-    public async getEnabledFormSettings(listId: string):Promise<IFormItem[]> {
-        return sp.web.lists.getByTitle("FormSettings")
-        .items.select("Id", "Title", "ContentTypeName", "Form", "RedirectURL", "OpenIn", "Enabled","Parameters")
-        .filter(`Title eq '${listId}' and Enabled eq 1`).get();
+    /**
+     * Return enabled form settings
+     */
+    public async getEnabledFormSettings(listId: string): Promise<IFormItem[]> {
+        return sp.web.lists.getByTitle("Form Settings")
+            .items.select("Id", "Title", "ContentTypeName", "FormType", "RedirectURL", "OpenIn", "Enabled", "Parameters")
+            .filter(`Title eq '${listId}' and Enabled eq 1`).get();
     }
     /**
      * Add form to Form Settings List
      */
     public async SaveForm(form: any): Promise<any> {
-        return sp.web.lists.getByTitle('FormSettings').items.add(form);
+        return sp.web.lists.getByTitle('Form Settings').items.add(form);
     }
 
-    public async UpdateForm(form:any):Promise<any>{
-        return sp.web.lists.getByTitle('FormSettings').items.getById(form.Id).update(form);
+    /**
+     * Update an existing Form Setting
+     */
+    public async UpdateForm(form: any): Promise<any> {
+        return sp.web.lists.getByTitle('Form Settings').items.getById(form.Id).update(form);
     }
 
     /** Logs messages to the console if the console is available */
@@ -58,5 +63,5 @@ export default class ListService {
             window.console.log(message);
         }
     }
-    
+
 }

@@ -3,9 +3,10 @@ import { Log } from '@microsoft/sp-core-library';
 import {
   BaseListViewCommandSet,
   IListViewCommandSetListViewUpdatedParameters,
-  IListViewCommandSetExecuteEventParameters
+  IListViewCommandSetExecuteEventParameters,
+  Command
 } from '@microsoft/sp-listview-extensibility';
-import * as jquery from 'jquery';
+import * as $ from 'jquery';
 import ListService from './services/list-service';
 import IFormItem from './models/form-item';
 /**
@@ -14,9 +15,7 @@ import IFormItem from './models/form-item';
  * You can define an interface to describe it.
  */
 export interface IFormsSettingsCommandSetProperties {
-  // This is an example; replace with your own properties
-  sampleTextOne: string;
-  sampleTextTwo: string;
+  
 }
 
 const LOG_SOURCE: string = 'FormsSettingsCommandSet';
@@ -25,54 +24,58 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
   private listService = new ListService();
   private ovverideClick = false;
   private selectedRow = null;
+  private itemId:number;
   @override
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized FormsSettingsCommandSet');
+    
     return Promise.resolve();
   }
 
   @override
   public async onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): Promise<void> {
     const formSettings = await this.listService.getEnabledFormSettings(String(this.context.pageContext.list.id));
+    const newForms = formSettings.filter(i=>i.FormType==="New");
+    this.ovverideNewFormSettings(newForms);
     
-    this.loadFormSettings(formSettings);
-
-    jquery("body").on("click", `button[data-automationid='FieldRenderer-title']`,  (e) => {
-      this.selectedRow = jquery(e.target).parents().closest("div[data-automationid='DetailsRowCell']");
-      this.selectedRow.trigger("click");
+    $("body").on("click", `button[data-automationid='FieldRenderer-title']`,  (e) => {
       
-      //e.stopPropagation();
+      this.selectedRow = $(e.target).parents().closest("div[data-automationid='DetailsRow']");
+      this.selectedRow.trigger("click");
     });
 
     if (event.selectedRows.length > 0) {
       
       const contentType = event.selectedRows[0].getValueByName("ContentType");
-      const editForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.Form==="Edit");
-      const displayForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.Form==="Display");
-      
+      const editForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.FormType==="Edit");
+      const displayForms = formSettings.filter(i=>i.ContentTypeName===contentType && i.FormType==="Display");
+      this.itemId = event.selectedRows[0].getValueByName("ID");
+
       if(editForms.length>0){
         
         this.ovverideClick=true;
-        this.overrideOnClick("Edit",editForms[0].OpenIn,editForms[0].RedirectURL,editForms[0].Parameters);        
+        this.overrideOnClick("Edit",editForms[0]);        
       }
       else{
         this.ovverideClick=false;
       }
-
       if(displayForms.length>0){
         this.ovverideClick=true;
-        this.overrideOnClick("Open",displayForms[0].OpenIn,displayForms[0].RedirectURL,displayForms[0].Parameters);
+        this.overrideOnClick("Open",displayForms[0]);
         if(this.selectedRow){
-          window.open(`http://google.com`, "_blank");
           this.selectedRow=null;
+          this.redirect(displayForms[0]);
+          $(document.body.firstChild).trigger("click");
+          
         }
-        //this.selectedRow.find("button[data-automationid='FieldRenderer-title']").click();
       }
-      else
+      else{
+        this.selectedRow=null;
         this.ovverideClick=false;
+      }
+        
     }
   }
-
 
   @override
   public async onExecute(event: IListViewCommandSetExecuteEventParameters): Promise<void> {
@@ -92,31 +95,35 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
     }
   }
 
-  private async loadFormSettings(formSettings: IFormItem[]) {
+  private async ovverideNewFormSettings(formSettings: IFormItem[]) {
+    // Ovveride if only one content type exists in the list
+    this.overrideOnClick("New",formSettings[0]);
     formSettings.map(form => {
-      switch (form.Form) {
-        case "New":
-          this.overrideOnClick(form.ContentTypeName,form.OpenIn,form.RedirectURL,form.Parameters);
-          break;
-      }
+          this.overrideOnClick(form.ContentTypeName,form);
     });
+    
   }
 
-  private overrideOnClick(tagName:string,openIn:string,redirectURL:string,tokens:string){
-    jquery("body").on("click", `button[name='${tagName}']`,  (e)=> {
-      if(this.ovverideClick){
-        switch (openIn) {
-          case "Current Window":
-            window.location.href = `${redirectURL}?${this.replaceTokens(tokens)}`;
-            break;
-          case "New Tab":
-            window.open(`${redirectURL}?${this.replaceTokens(tokens)}`, "_blank");
-            break;
-        }
-        e.stopPropagation();
+  private overrideOnClick(tagName:string,settings:IFormItem){
+    $("body").on("click", `button[name='${tagName}']`,  (e)=> {
+      if(this.ovverideClick || tagName==="New"){
+        this.redirect(settings);
+        return e.stopPropagation();
       }
       
     });
+  }
+
+  private redirect(settings:IFormItem){
+    const {OpenIn,RedirectURL,Parameters} = settings;
+    switch (OpenIn) {
+      case "Current Window":
+        window.location.href = `${RedirectURL}?${this.replaceTokens(Parameters)}`;
+        break;
+      case "New Tab":
+        window.open(`${RedirectURL}?${this.replaceTokens(Parameters)}`, "_blank");
+        break;
+    }
   }
 
   private replaceTokens(tokens:string){
@@ -127,6 +134,7 @@ export default class FormsSettingsCommandSet extends BaseListViewCommandSet<IFor
             .replace("{SiteUrl}",this.context.pageContext.site.absoluteUrl)
             .replace("{UserLoginName}",this.context.pageContext.user.loginName)
             .replace("{UserDisplayName}",this.context.pageContext.user.displayName)
-            .replace("{UserEmail}",this.context.pageContext.user.email);
+            .replace("{UserEmail}",this.context.pageContext.user.email)
+            .replace("{ItemId}",String(this.itemId));
   }
 }
