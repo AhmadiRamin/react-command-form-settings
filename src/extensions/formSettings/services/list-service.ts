@@ -25,7 +25,7 @@ export default class ListService {
         * Return current list content types
         */
     public async getListContentTypes(listId: string): Promise<any> {
-        return sp.web.lists.getById(listId).contentTypes.get();
+        return sp.web.lists.getById(listId).contentTypes.filter("Name ne 'Folder'").get();
     }
     /**
         * Return all form settings related to the current list

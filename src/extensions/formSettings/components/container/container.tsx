@@ -1,15 +1,20 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import SettingsPanel from '../settings-panel/settings-panel';
+import IFormItem from '../../models/form-item';
 
 class container {
     private showPanel:boolean = true;
-    constructor(private listId){
+    public listId:string;
+    public formSettings:IFormItem[];
+    public contentTypes:any[];
+
+    constructor(){
         
     }
     public render() {
         const settingsPanel = (
-            <SettingsPanel showPanel={this.showPanel} setShowPanel={this._setShowPanel} listId={this.listId} />
+            <SettingsPanel contentTypes={this.contentTypes} formSettings={this.formSettings} showPanel={this.showPanel} setShowPanel={this._setShowPanel} listId={this.listId} />
         );
         
         ReactDOM.render([settingsPanel],document.body.firstChild as Element);

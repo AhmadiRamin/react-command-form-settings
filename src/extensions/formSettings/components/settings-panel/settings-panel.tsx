@@ -32,12 +32,10 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
     }
 
     public async componentDidMount() {
-        let formSettings = await this.listService.getFormSettings(this.props.listId);
-        const contentTypes = await this.listService.getListContentTypes(this.props.listId);
 
         this.setState({
-            contentTypes: contentTypes.filter(t => t.Name != "Folder").map(t => ({ key: t.Id.StringValue, text: t.Name })),
-            formSettings: formSettings
+            contentTypes: this.props.contentTypes.map(t => ({ key: t.Id.StringValue, text: t.Name })),
+            formSettings: this.props.formSettings
         });
     }
 
@@ -220,7 +218,7 @@ export default class SettingsPanel extends React.Component<ISettingsPanelProps, 
         };
 
         const forms: IFormItem[] = this.state.formSettings.filter(ct => ct.FormType === form.FormType && ct.ContentTypeName === form.ContentTypeName);
-
+        
         if (forms.length > 0) {
             this.listService.UpdateForm(form);
             let newFormSettings = this.state.formSettings;

@@ -4,7 +4,7 @@
   "https": true,
   "serveConfigurations": {
     "default": {
-      "pageUrl": "https://ukdevs.sharepoint.com/sites/test/Lists/Test%20B/AllItems.aspx",
+      "pageUrl": "https://ukdevs.sharepoint.com/sites/test/Lists/forms/AllItems.aspx",
       "customActions": {
         "4c8f3df1-1d4c-4381-9590-0f4f8c16e782": {
           "location": "ClientSideExtension.ListViewCommandSet.CommandBar",
@@ -16,7 +16,7 @@
       }
     },
     "formSettings": {
-      "pageUrl": "https://ukdevs.sharepoint.com/sites/test/Lists/Test%20B/AllItems.aspx",
+      "pageUrl": "https://ukdevs.sharepoint.com/sites/test/Lists/forms/AllItems.aspx",
       "customActions": {
         "4c8f3df1-1d4c-4381-9590-0f4f8c16e782": {
           "location": "ClientSideExtension.ListViewCommandSet.CommandBar",
