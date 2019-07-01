@@ -1,4 +1,4 @@
-# Print List Item Command View Set
+# Form Settings Command View Set
 
 ## Summary
 This sample shows how you can redirect default SharePoint list forms (New,Edit,Display) to different pages.
